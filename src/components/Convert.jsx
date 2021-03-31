@@ -3,24 +3,47 @@ import axios from 'axios';
 // Key from .env
 const KEY = process.env.REACT_APP_GOOGLE_TRANSLATE_API_KEY;
 
-console.log(process.env)
+console.log(process.env);
 
 const Convert = ({ language, text }) => {
-  useEffect(() => {
-    axios.post(
-      'https://translation.googleapis.com/language/translate/v2',
-      {},
-      {
-        params: {
-          q: text,
-          target: language.value,
-          key: KEY,
-        },
-      }
-    );
-  }, [language, text]);
+  const [translated, setTranslated] = useState('');
+  const [debouncedText, setDebouncedText] = useState(text);
 
-  return <div>Translate</div>;
+  // Debounce text
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedText(text);
+    }, 500);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [text]);
+
+  // Make request with debounced text
+  useEffect(() => {
+    const doTranslation = async () => {
+      const { data } = await axios.post(
+        'https://translation.googleapis.com/language/translate/v2',
+        {},
+        {
+          params: {
+            q: debouncedText,
+            target: language.value,
+            key: KEY,
+          },
+        }
+      );
+      setTranslated(data.data.translations[0].translatedText);
+    };
+    doTranslation();
+  }, [language, debouncedText]);
+
+  return (
+    <div>
+      <h1 className="ui header">{translated}</h1>
+    </div>
+  );
 };
 
 export default Convert;
