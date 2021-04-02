@@ -3,8 +3,6 @@ import axios from 'axios';
 // Key from .env
 const KEY = process.env.REACT_APP_GOOGLE_TRANSLATE_API_KEY;
 
-console.log(process.env);
-
 const Convert = ({ language, text }) => {
   const [translated, setTranslated] = useState('');
   const [debouncedText, setDebouncedText] = useState(text);
